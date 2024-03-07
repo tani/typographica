@@ -2,6 +2,7 @@ import * as csstree from "npm:css-tree@2.3.1";
 import { encodeBase64 } from "https://deno.land/std@0.218.2/encoding/base64.ts";
 import { Buffer } from "node:buffer";
 import { Hono } from "https://deno.land/x/hono@v4.0.10/mod.ts";
+import { cache, compress } from "https://deno.land/x/hono@v4.0.10/middleware.ts"
 import { XmlEntities } from "https://deno.land/x/html_entities@v1.0/mod.js";
 import subsetFont from "npm:subset-font@2.1.0";
 
@@ -90,6 +91,17 @@ async function render(params: URLSearchParams): Promise<string> {
 }
 
 const app = new Hono();
+
+app.use(compress())
+
+app.get(
+  '*',
+  cache({
+    cacheName: 'typography.deno.dev',
+    cacheControl: 'max-age=3600',
+    wait: true,
+  })
+)
 
 app.get("/render", async (c) => {
   const body = await render(new URL(c.req.url).searchParams);
