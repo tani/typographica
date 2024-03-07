@@ -94,15 +94,6 @@ const app = new Hono();
 
 app.use(compress())
 
-app.get(
-  '*',
-  cache({
-    cacheName: 'typography.deno.dev',
-    cacheControl: 'max-age=3600',
-    wait: true,
-  })
-)
-
 app.get("/render", async (c) => {
   const body = await render(new URL(c.req.url).searchParams);
   c.header("Content-Type", "image/svg+xml");
